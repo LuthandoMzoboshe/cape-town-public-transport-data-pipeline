@@ -1,17 +1,18 @@
 from pathlib import Path
 import pandas as pd
 
-SILVER = Path("data/processed/golden_arrow")
+SILVER = Path("data/processed")
 
-for file in SILVER.glob("*.parquet"):
+for file in sorted(SILVER.glob("*/*.parquet")):
     print("\n" + "=" * 60)
-    print(f"FILE: {file.name}")
+    print(f"FILE: {file}")
     print("=" * 60)
 
     df = pd.read_parquet(file)
 
     print(f"Rows: {len(df):,}")
     print(f"Columns: {len(df.columns)}")
+
     print("\nColumns:")
     for column in df.columns:
         print(f"  - {column}")
