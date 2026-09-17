@@ -1,1 +1,6 @@
 data/raw/
+
+# Local development files
+.vscode/
+__pycache__/
+*.pyc
