@@ -1,12 +1,12 @@
 import json
-from pathlib import Path
 from collections import Counter
 
-RAW = Path("data/raw")
+from src.utils.raw_files import latest_geojson
 
 
-def load(folder):
-    file = next(folder.glob("*.geojson"))
+def load(dataset):
+    file = latest_geojson(dataset)
+
     with open(file, encoding="utf-8") as f:
         return json.load(f)["features"]
 
@@ -15,8 +15,8 @@ def load(folder):
 # Golden Arrow
 # -------------------------
 
-routes = load(RAW / "golden_arrow_routes")
-stops = load(RAW / "golden_arrow_stops")
+routes = load("golden_arrow_routes")
+stops = load("golden_arrow_stops")
 
 route_codes = [
     f["properties"].get("Route_No", "").strip()
@@ -53,8 +53,8 @@ print(f"Duplicate route codes: {len(duplicates)}")
 # MyCiTi
 # -------------------------
 
-myciti_routes = load(RAW / "myciti_routes")
-myciti_stops = load(RAW / "myciti_stops")
+myciti_routes = load("myciti_routes")
+myciti_stops = load("myciti_stops")
 
 print("\n=== MYCITI ===")
 print(f"Route records: {len(myciti_routes)}")
@@ -80,7 +80,7 @@ for field in empty_route_fields:
 # Taxi
 # -------------------------
 
-taxi = load(RAW / "taxi_routes")
+taxi = load("taxi_routes")
 
 origins = {
     f["properties"].get("ORGN", "").strip()
@@ -115,8 +115,8 @@ print(f"Unique origin → destination pairs: {len(pairs)}")
 # Metrorail
 # -------------------------
 
-lines = load(RAW / "metrorail_lines")
-stations = load(RAW / "metrorail_stations")
+lines = load("metrorail_lines")
+stations = load("metrorail_stations")
 
 station_fields = set()
 
@@ -129,3 +129,4 @@ print(f"Stations: {len(stations)}")
 print(f"Station has LINEID: {'LINEID' in station_fields}")
 
 print("\nAnalysis complete.")
+

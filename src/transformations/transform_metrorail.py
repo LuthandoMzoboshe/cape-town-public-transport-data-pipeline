@@ -3,12 +3,13 @@ from pathlib import Path
 
 import pandas as pd
 
+from src.utils.raw_files import latest_geojson
 
-RAW_DIR = Path("data/raw")
+
 PROCESSED_DIR = Path("data/processed/metrorail")
 
-LINES_FILE = next((RAW_DIR / "metrorail_lines").glob("*.geojson"))
-STATIONS_FILE = next((RAW_DIR / "metrorail_stations").glob("*.geojson"))
+LINES_FILE = latest_geojson("metrorail_lines")
+STATIONS_FILE = latest_geojson("metrorail_stations")
 
 
 def load_geojson(path):

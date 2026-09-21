@@ -1,15 +1,89 @@
+
 from pathlib import Path
+
 import pandas as pd
+
 
 SILVER_DIR = Path("data/processed")
 GOLD_DIR = Path("data/gold/transport_stops")
+
+
+COLUMNS = [
+    "transport_mode",
+    "source_system",
+    "location_type",
+    "source_location_id",
+    "stop_code",
+    "location_name",
+    "classification",
+    "route_code",
+    "stop_sequence",
+    "station_owner",
+    "station_category",
+    "sub_region",
+    "region_id",
+    "latitude",
+    "longitude",
+    "geometry",
+]
+
+
+def prepare_dataframe(df):
+    df = df.copy()
+
+    string_columns = [
+        "transport_mode",
+        "source_system",
+        "location_type",
+        "source_location_id",
+        "stop_code",
+        "location_name",
+        "classification",
+        "route_code",
+        "station_owner",
+        "station_category",
+        "sub_region",
+        "region_id",
+    ]
+
+    for column in string_columns:
+        df[column] = df[column].astype("string")
+
+    df["stop_sequence"] = pd.to_numeric(
+        df["stop_sequence"],
+        errors="coerce"
+    ).astype("Int64")
+
+    df["latitude"] = pd.to_numeric(
+        df["latitude"],
+        errors="coerce"
+    )
+
+    df["longitude"] = pd.to_numeric(
+        df["longitude"],
+        errors="coerce"
+    )
+
+    return df[COLUMNS]
+
+
+def empty_string_series(index):
+    return pd.Series(pd.NA, index=index, dtype="string")
+
+
+def empty_integer_series(index):
+    return pd.Series(pd.NA, index=index, dtype="Int64")
+
+
+def empty_float_series(index):
+    return pd.Series(float("nan"), index=index, dtype="float64")
 
 
 def transform_golden_arrow():
     file = SILVER_DIR / "golden_arrow/golden_arrow_stops.parquet"
     df = pd.read_parquet(file)
 
-    return pd.DataFrame({
+    return prepare_dataframe(pd.DataFrame({
         "transport_mode": "bus",
         "source_system": "golden_arrow",
         "location_type": "stop",
@@ -19,54 +93,54 @@ def transform_golden_arrow():
         "classification": df["classification"],
         "route_code": df["route_code"],
         "stop_sequence": df["stop_sequence"],
-        "station_owner": None,
-        "station_category": None,
-        "sub_region": None,
-        "region_id": None,
-        "latitude": None,
-        "longitude": None,
+        "station_owner": empty_string_series(df.index),
+        "station_category": empty_string_series(df.index),
+        "sub_region": empty_string_series(df.index),
+        "region_id": empty_string_series(df.index),
+        "latitude": empty_float_series(df.index),
+        "longitude": empty_float_series(df.index),
         "geometry": df["geometry"],
-    })
+    }))
 
 
 def transform_myciti():
     file = SILVER_DIR / "myciti/myciti_stops.parquet"
     df = pd.read_parquet(file)
 
-    return pd.DataFrame({
+    return prepare_dataframe(pd.DataFrame({
         "transport_mode": "bus",
         "source_system": "myciti",
         "location_type": "stop",
         "source_location_id": df["stop_id"].astype("string"),
-        "stop_code": None,
+        "stop_code": empty_string_series(df.index),
         "location_name": df["stop_name"],
-        "classification": None,
-        "route_code": None,
-        "stop_sequence": None,
-        "station_owner": None,
-        "station_category": None,
-        "sub_region": None,
-        "region_id": None,
-        "latitude": None,
-        "longitude": None,
+        "classification": empty_string_series(df.index),
+        "route_code": empty_string_series(df.index),
+        "stop_sequence": empty_integer_series(df.index),
+        "station_owner": empty_string_series(df.index),
+        "station_category": empty_string_series(df.index),
+        "sub_region": empty_string_series(df.index),
+        "region_id": empty_string_series(df.index),
+        "latitude": empty_float_series(df.index),
+        "longitude": empty_float_series(df.index),
         "geometry": df["geometry"],
-    })
+    }))
 
 
 def transform_metrorail():
     file = SILVER_DIR / "metrorail/metrorail_stations.parquet"
     df = pd.read_parquet(file)
 
-    return pd.DataFrame({
+    return prepare_dataframe(pd.DataFrame({
         "transport_mode": "rail",
         "source_system": "metrorail",
         "location_type": "station",
         "source_location_id": df["station_id"].astype("string"),
-        "stop_code": None,
+        "stop_code": empty_string_series(df.index),
         "location_name": df["station_name"],
-        "classification": None,
-        "route_code": None,
-        "stop_sequence": None,
+        "classification": empty_string_series(df.index),
+        "route_code": empty_string_series(df.index),
+        "stop_sequence": empty_integer_series(df.index),
         "station_owner": df["station_owner"],
         "station_category": df["station_category"],
         "sub_region": df["sub_region"],
@@ -74,7 +148,7 @@ def transform_metrorail():
         "latitude": df["latitude"],
         "longitude": df["longitude"],
         "geometry": df["geometry"],
-    })
+    }))
 
 
 def main():
@@ -107,3 +181,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
